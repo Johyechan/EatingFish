@@ -25,6 +25,7 @@ AEFCharacterBase::AEFCharacterBase()
     GetCharacterMovement()->MaxWalkSpeed = 500.0f; 
     GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f; 
     GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
+    GetCharacterMovement()->GravityScale = 10.0f;
 
     // Mesh
     GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f)); 
