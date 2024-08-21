@@ -14,4 +14,6 @@ class EATINGFISH_API AEFGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public: 
+	AEFGameMode();
 };
