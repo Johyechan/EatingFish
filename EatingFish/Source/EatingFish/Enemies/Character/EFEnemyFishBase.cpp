@@ -44,8 +44,11 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	GetMesh()->SetRelativeRotation(FRotator(00, -90, 90));
+	GetMesh()->SetRelativeLocation(FVector(0, 0, -20));
+
 	GetCapsuleComponent()->InitCapsuleSize(25, 50);
-	GetCapsuleComponent()->AddLocalRotation(FQuat(FRotator(90, 0, 0)));
+	GetCapsuleComponent()->SetRelativeRotation(FRotator(90, 0, 0));
 
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -53,6 +56,8 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	GetCharacterMovement()->MaxSwimSpeed = 500;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20;
 	GetCharacterMovement()->BrakingDecelerationSwimming = 1000;
+
+	
 
 	AIControllerClass = AEFEnemyFishAI::StaticClass();
 	AutoPossessAI = EAutoPossessAI::Spawned;
