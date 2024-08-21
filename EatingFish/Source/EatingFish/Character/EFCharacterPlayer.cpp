@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AEFCharacterPlayer::AEFCharacterPlayer()
 {
@@ -53,6 +54,23 @@ void AEFCharacterPlayer::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Class: %s"), *AnimInstance->GetClass()->GetName());
+
+		EFAnimInstance = Cast<UEFAnimInstance>(AnimInstance);
+
+		if (EFAnimInstance)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Successfully cast to UEFAnimInstance"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to cast to UEFAnimInstance"));
+		}
+	}
 }
 
 void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -60,12 +78,11 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
-	EnhancedInputComponent->BindAction(UpDownAction, ETriggerEvent::Triggered, this,
-		&AEFCharacterPlayer::UpDown);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this,
-		&AEFCharacterPlayer::Move);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this,
-		&AEFCharacterPlayer::Attack);
+	EnhancedInputComponent->BindAction(UpDownAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::UpDown);
+	EnhancedInputComponent->BindAction(UpDownAction, ETriggerEvent::None, this, &AEFCharacterPlayer::UpDownEnd);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::None, this, &AEFCharacterPlayer::MoveEnd);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
 }
 
 void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
@@ -77,10 +94,32 @@ void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
 
 	// Up/Down 값을 Z축에 반영하여 새로운 위치 계산
 	// 여기서 UpDownValue가 양수면 위로, 음수면 아래로 이동합니다.
+
+	// 다시 idle상태로 돌아오기 해야됨
+	if (UpDownValue < 0)
+	{
+		EFAnimInstance->SetIsUp(false);
+		EFAnimInstance->SetIsDown(true);
+	}
+	else if (UpDownValue > 0)
+	{
+		EFAnimInstance->SetIsUp(true);
+		EFAnimInstance->SetIsDown(false);
+	}
+	
 	FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, UpDownValue * UpDownSpeed);
 
 	// 캐릭터의 위치 업데이트
 	SetActorLocation(NewLocation);
+}
+
+void AEFCharacterPlayer::UpDownEnd(const FInputActionValue& Value)
+{
+	EFAnimInstance->SetIsUp(false);
+	EFAnimInstance->SetIsDown(false);
+
+	FVector CurVelocity = GetCharacterMovement()->Velocity;
+	GetCharacterMovement()->Velocity = FVector(CurVelocity.X, CurVelocity.Y, 0.0f);
 }
 
 void AEFCharacterPlayer::Move(const FInputActionValue& Value)
@@ -94,6 +133,11 @@ void AEFCharacterPlayer::Move(const FInputActionValue& Value)
 
 	AddMovementInput(ForwardDirection, MovementVector.X);
 	AddMovementInput(RightDirection, MovementVector.Y);
+}
+
+void AEFCharacterPlayer::MoveEnd(const FInputActionValue& Value)
+{
+	GetCharacterMovement()->Velocity = FVector(0.0f, 0.0f, 0.0f);
 }
 
 void AEFCharacterPlayer::Attack(const FInputActionValue& Value)

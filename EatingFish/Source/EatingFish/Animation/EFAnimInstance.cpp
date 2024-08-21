@@ -29,8 +29,6 @@ void UEFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Velocity = Movement->Velocity;
 		GroundSpeed = Velocity.Size2D(); // XY만 이용하면 지면의 속력을 구함
 		bIsIdle = GroundSpeed < MovingThreshould;
-		bIsFalling = Movement->IsFalling();
-		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
 	}
 }
 

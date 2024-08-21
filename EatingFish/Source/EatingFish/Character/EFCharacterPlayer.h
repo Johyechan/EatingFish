@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/EFCharacterBase.h"
 #include "InputActionValue.h"
+#include <EatingFish/Animation/EFAnimInstance.h>
 #include "EFCharacterPlayer.generated.h"
 
 /**
@@ -43,10 +44,15 @@ protected:
 		TObjectPtr<class UInputAction> AttackAction;
 
 	void UpDown(const FInputActionValue& Value);
+	void UpDownEnd(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
+	void MoveEnd(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
+		UEFAnimInstance* EFAnimInstance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UpDownSpeed = 100.0f;
+		float UpDownSpeed = 50.0f;
 };

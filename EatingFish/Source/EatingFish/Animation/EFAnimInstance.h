@@ -21,6 +21,10 @@ protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+public:
+	FORCEINLINE void SetIsUp(bool b) { bIsUp = b; }
+	FORCEINLINE void SetIsDown(bool b) { bIsDown = b; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 		TObjectPtr<class ACharacter> Owner;
@@ -38,13 +42,13 @@ protected:
 		uint8 bIsIdle : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool bIsDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool bIsUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		float MovingThreshould;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-		uint8 bIsFalling : 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-		uint8 bIsJumping : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		float JumpingThreshould;

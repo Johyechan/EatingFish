@@ -21,11 +21,12 @@ AEFCharacterBase::AEFCharacterBase()
     GetCharacterMovement()->bOrientRotationToMovement = true; 
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
     GetCharacterMovement()->JumpZVelocity = 700.0f; 
-    GetCharacterMovement()->AirControl = 0.35f; 
-    GetCharacterMovement()->MaxWalkSpeed = 500.0f; 
-    GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f; 
-    GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
-    GetCharacterMovement()->GravityScale = 10.0f;
+    GetCharacterMovement()->AirControl = 1;
+    GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+    GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
+    GetCharacterMovement()->MinAnalogWalkSpeed = 20.0f;
+    GetCharacterMovement()->BrakingDecelerationSwimming = 2000.0f;
+    GetCharacterMovement()->GravityScale = 0.0f;
 
     // Mesh
     GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -100.0f), FRotator(0.0f, -90.0f, 0.0f)); 
