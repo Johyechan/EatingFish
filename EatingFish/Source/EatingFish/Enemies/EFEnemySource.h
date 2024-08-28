@@ -22,7 +22,17 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void SpawnEnemy();
 
-		
+protected:
+	UPROPERTY()
+	TArray<TSubclassOf<class AEFEnemyFishBase>> SpawnableEnemies;
+	
+	UPROPERTY(EditAnywhere, Category = SpawnParams)
+	float SpawnGap;
+
+	UPROPERTY(EditAnywhere, Category = SpawnParams)
+	float SpawnRange;
+
+	FTimerHandle SpawnTimer;
 };

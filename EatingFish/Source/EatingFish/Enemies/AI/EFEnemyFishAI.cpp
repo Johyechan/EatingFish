@@ -26,7 +26,8 @@ void AEFEnemyFishAI::RunAI()
 	if (UseBlackboard(BBoard, BBPtr)) {
 		AEFCharacterPlayer* Ctrl = Cast<AEFCharacterPlayer>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		if (Ctrl) {
-			Blackboard->SetValueAsObject(TEXT("Target"), GetWorld()->GetFirstPlayerController());
+			Blackboard->SetValueAsObject(TEXT("Target"), Ctrl);
+			UE_LOG(LogTemp, Warning, TEXT("TARGETSETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"));
 		}
 
 		bool RunRes = RunBehaviorTree(Tree);
