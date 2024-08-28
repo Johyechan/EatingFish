@@ -54,5 +54,5 @@ protected:
 		UEFAnimInstance* EFAnimInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UpDownSpeed = 50.0f;
+		float UpDownSpeed = 1.0f;
 };
