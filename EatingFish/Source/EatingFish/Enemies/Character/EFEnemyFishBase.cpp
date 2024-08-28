@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimMontage.h"
 #include "Enemies/Animation/EFEnemyAnimInst.h"
+#include "Character/EFCharacterPlayer.h"
+#include "Character/EFCharacterBase.h"
 
 // Sets default values
 AEFEnemyFishBase::AEFEnemyFishBase()
@@ -56,11 +58,12 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	GetCharacterMovement()->MaxSwimSpeed = 500;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20;
 	GetCharacterMovement()->BrakingDecelerationSwimming = 1000;
+	GetCharacterMovement()->GravityScale = 0;
 
 	
 
 	AIControllerClass = AEFEnemyFishAI::StaticClass();
-	AutoPossessAI = EAutoPossessAI::Spawned;
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	
 	
@@ -149,10 +152,10 @@ void AEFEnemyFishBase::Bite()
 
 	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera /*�����÷��̾�����ϴ�ä��*/, FCollisionShape::MakeSphere(25), Params);
 	if (IsHit) {
-		//ACPPlayerCharacter* PC = Cast<ACPPlayerCharacter>(Hits.GetActor());
-		//if (PC) {
-		//	UGameplayStatics::ApplyDamage(PC, 10, GetController(), nullptr, nullptr);
-		//}
+		AEFCharacterPlayer* PC = Cast<AEFCharacterPlayer>(OutHitRes.GetActor());
+		if (PC) {
+			UGameplayStatics::ApplyDamage(PC, 10, GetController(), nullptr, nullptr);
+		}
 	}
 }
 

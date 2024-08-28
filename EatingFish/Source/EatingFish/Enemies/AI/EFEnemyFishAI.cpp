@@ -26,6 +26,7 @@ void AEFEnemyFishAI::RunAI()
 		APlayerController* Ctrl = GetWorld()->GetFirstPlayerController();
 		if (Ctrl) {
 			Blackboard->SetValueAsObject(TEXT("Target"), GetWorld()->GetFirstPlayerController());
+			//UE_LOG(LogTemp, Log, TEXT("TARGET SETTTTTTTTTTTTTTTTTT"));
 		}
 
 		bool RunRes = RunBehaviorTree(Tree);
