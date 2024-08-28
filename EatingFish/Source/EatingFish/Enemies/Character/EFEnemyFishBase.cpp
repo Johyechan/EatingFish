@@ -58,11 +58,12 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	GetCharacterMovement()->MaxSwimSpeed = 500;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20;
 	GetCharacterMovement()->BrakingDecelerationSwimming = 1000;
+	GetCharacterMovement()->GravityScale = 0;
 
 	
 
 	AIControllerClass = AEFEnemyFishAI::StaticClass();
-	AutoPossessAI = EAutoPossessAI::Spawned;
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	
 	
