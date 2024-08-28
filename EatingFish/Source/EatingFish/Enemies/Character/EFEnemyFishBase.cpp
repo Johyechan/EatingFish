@@ -63,7 +63,7 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	
 
 	AIControllerClass = AEFEnemyFishAI::StaticClass();
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AutoPossessAI = EAutoPossessAI::Spawned;
 
 	
 	

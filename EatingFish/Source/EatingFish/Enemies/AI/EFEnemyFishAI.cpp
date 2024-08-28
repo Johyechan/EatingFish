@@ -5,6 +5,7 @@
 #include <BehaviorTree/BehaviorTree.h>
 #include <BehaviorTree/BlackboardData.h>
 #include <BehaviorTree/BlackboardComponent.h>
+#include "Character/EFCharacterPlayer.h"
 
 AEFEnemyFishAI::AEFEnemyFishAI()
 {
@@ -23,10 +24,9 @@ void AEFEnemyFishAI::RunAI()
 {
 	UBlackboardComponent* BBPtr = Blackboard.Get();
 	if (UseBlackboard(BBoard, BBPtr)) {
-		APlayerController* Ctrl = GetWorld()->GetFirstPlayerController();
+		AEFCharacterPlayer* Ctrl = Cast<AEFCharacterPlayer>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		if (Ctrl) {
 			Blackboard->SetValueAsObject(TEXT("Target"), GetWorld()->GetFirstPlayerController());
-			//UE_LOG(LogTemp, Log, TEXT("TARGET SETTTTTTTTTTTTTTTTTT"));
 		}
 
 		bool RunRes = RunBehaviorTree(Tree);
