@@ -21,9 +21,13 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+	float GetPlayerZLocation(UWorld* World);
 
 // Camera Section
 protected:
@@ -42,12 +46,15 @@ protected:
 		TObjectPtr<class UInputAction> MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<class UInputAction> AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<class UInputAction> LookAction;
 
 	void UpDown(const FInputActionValue& Value);
 	void UpDownEnd(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void MoveEnd(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -55,4 +62,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
 		float UpDownSpeed = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		float SurfaceSwimZ = -30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		float UnderwaterSwimZ = -100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		bool bIsInWater;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		bool bCanJump;
 };
