@@ -26,9 +26,6 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-protected:
-	float GetPlayerZLocation(UWorld* World);
-
 // Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
@@ -61,17 +58,11 @@ protected:
 		UEFAnimInstance* EFAnimInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UpDownSpeed = 1.0f;
+		float UpDownSpeed = 2.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float SurfaceSwimZ = -30.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bool, Meta = (AllowPrivateAccess = "true"))
+		bool bIsGround;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UnderwaterSwimZ = -100.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		bool bIsInWater;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		bool bCanJump;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
+		bool bIsOnce;
 };

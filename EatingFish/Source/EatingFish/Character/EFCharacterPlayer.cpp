@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AEFCharacterPlayer::AEFCharacterPlayer()
@@ -24,9 +25,6 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 	FollowCamera->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
 
 	GetCharacterMovement()->GravityScale = 1.0f;
-
-	bIsInWater = false;
-	bCanJump = true;
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>InputMappingContextRef(TEXT("/Game/EF/Inputs/EFInputMap.EFInputMap"));
 	if (nullptr != InputMappingContextRef.Object)
@@ -62,6 +60,9 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 void AEFCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bIsGround = true;
+
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
@@ -88,29 +89,28 @@ void AEFCharacterPlayer::BeginPlay()
 
 void AEFCharacterPlayer::Tick(float DeltaTime)
 {
-	if (SurfaceSwimZ >= GetPlayerZLocation(GetWorld()) && UnderwaterSwimZ < GetPlayerZLocation(GetWorld()))
+	if (bIsGround)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Surface"));
-		GetCharacterMovement()->GravityScale = 0.0f;
-		bIsInWater = true;
-		EFAnimInstance->SetIsSurface(true);
-		EFAnimInstance->SetIsGround(false);
-	}
-	else if(UnderwaterSwimZ >= GetPlayerZLocation(GetWorld()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Underwater"));
-		GetCharacterMovement()->GravityScale = 0.0f;
-		bIsInWater = true;
-		EFAnimInstance->SetIsSurface(false);
-		EFAnimInstance->SetIsGround(false);
-	}
-	else if (SurfaceSwimZ < GetPlayerZLocation(GetWorld()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Ground"));
+		bIsOnce = true;
 		GetCharacterMovement()->GravityScale = 1.0f;
-		bIsInWater = false;
-		EFAnimInstance->SetIsSurface(false);
+		EFAnimInstance->SetIsInWater(false);
 		EFAnimInstance->SetIsGround(true);
+	}
+	else
+	{
+		if (bIsOnce)
+		{
+			FVector CurrentLocation = GetActorLocation();
+			if (CurrentLocation.Z < -100.0f)
+			{
+				GetCharacterMovement()->GravityScale = 0.0f;
+				CurrentLocation.Z += 50.0f;
+				SetActorLocation(CurrentLocation);
+				bIsOnce = false;
+			}
+		}
+		EFAnimInstance->SetIsInWater(true);
+		EFAnimInstance->SetIsGround(false);
 	}
 }
 
@@ -128,33 +128,9 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Look);
 }
 
-float AEFCharacterPlayer::GetPlayerZLocation(UWorld* World)
-{
-	if (!World)
-	{
-		return 0.0f;
-	}
-	
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if (!PlayerController)
-	{
-		return 0.0f;
-	}
-
-	ACharacter* PlayerCharacter = Cast<ACharacter>(PlayerController->GetPawn());
-	if (!PlayerCharacter)
-	{
-		return 0.0f;
-	}
-
-	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
-
-	return PlayerLocation.Z;
-}
-
 void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
 {
-	if (bIsInWater)
+	if (!bIsGround)
 	{
 		float UpDownValue = Value.Get<float>();
 
@@ -170,8 +146,22 @@ void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
 		}
 
 		FVector CurrentLocation = GetActorLocation();
-		CurrentLocation.Z += UpDownValue * UpDownSpeed;
-		SetActorLocation(CurrentLocation);
+		
+		if (CurrentLocation.Z < -30.0f)
+		{
+			CurrentLocation.Z += UpDownValue * UpDownSpeed;
+			SetActorLocation(CurrentLocation);
+		}
+		else
+		{
+			float before = CurrentLocation.Z;
+			CurrentLocation.Z += UpDownValue * UpDownSpeed;
+			float after = CurrentLocation.Z;
+			if (before > after)
+			{
+				SetActorLocation(CurrentLocation);
+			}
+		}
 	}
 }
 

@@ -8,7 +8,6 @@
 UEFAnimInstance::UEFAnimInstance()
 {
 	MovingThreshould = 3.0f;
-	JumpingThreshould = 100.0f;
 }
 
 void UEFAnimInstance::NativeInitializeAnimation()
@@ -29,8 +28,6 @@ void UEFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Velocity = Movement->Velocity;
 		Speed = Velocity.Size2D();
 		bIsIdle = Speed < MovingThreshould;
-		bIsFalling = Movement->IsFalling();
-		bIsJumping = bIsFalling & (Velocity.Z > JumpingThreshould);
 	}
 }
 
