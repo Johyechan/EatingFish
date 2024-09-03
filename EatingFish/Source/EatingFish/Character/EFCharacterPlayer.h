@@ -21,6 +21,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -42,17 +43,26 @@ protected:
 		TObjectPtr<class UInputAction> MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<class UInputAction> AttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<class UInputAction> LookAction;
 
 	void UpDown(const FInputActionValue& Value);
 	void UpDownEnd(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void MoveEnd(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 		UEFAnimInstance* EFAnimInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UpDownSpeed = 1.0f;
+		float UpDownSpeed = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bool, Meta = (AllowPrivateAccess = "true"))
+		bool bIsGround;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
+		bool bIsOnce;
 };

@@ -24,6 +24,8 @@ protected:
 public:
 	FORCEINLINE void SetIsUp(bool b) { bIsUp = b; }
 	FORCEINLINE void SetIsDown(bool b) { bIsDown = b; }
+	FORCEINLINE void SetIsInWater(bool b) { bIsInWater = b; }
+	FORCEINLINE void SetIsGround(bool b) { IsGround = b; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
@@ -36,10 +38,16 @@ protected:
 		FVector Velocity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-		float GroundSpeed;
+		float Speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		uint8 bIsIdle : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool bIsInWater;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool IsGround;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		bool bIsDown;
@@ -49,7 +57,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		float MovingThreshould;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-		float JumpingThreshould;
 };

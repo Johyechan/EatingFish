@@ -7,6 +7,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AEFCharacterPlayer::AEFCharacterPlayer()
@@ -22,6 +23,8 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
+
+	GetCharacterMovement()->GravityScale = 1.0f;
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>InputMappingContextRef(TEXT("/Game/EF/Inputs/EFInputMap.EFInputMap"));
 	if (nullptr != InputMappingContextRef.Object)
@@ -46,11 +49,20 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 	{
 		AttackAction = InputActionAttack.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>InputActionLook(TEXT("/Game/EF/Inputs/IALook.IALook"));
+	if (nullptr != InputActionLook.Object)
+	{
+		LookAction = InputActionLook.Object;
+	}
 }
 
 void AEFCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bIsGround = true;
+
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 	{
@@ -75,6 +87,33 @@ void AEFCharacterPlayer::BeginPlay()
 	}
 }
 
+void AEFCharacterPlayer::Tick(float DeltaTime)
+{
+	if (bIsGround)
+	{
+		bIsOnce = true;
+		GetCharacterMovement()->GravityScale = 1.0f;
+		EFAnimInstance->SetIsInWater(false);
+		EFAnimInstance->SetIsGround(true);
+	}
+	else
+	{
+		if (bIsOnce)
+		{
+			FVector CurrentLocation = GetActorLocation();
+			if (CurrentLocation.Z < -100.0f)
+			{
+				GetCharacterMovement()->GravityScale = 0.0f;
+				CurrentLocation.Z += 50.0f;
+				SetActorLocation(CurrentLocation);
+				bIsOnce = false;
+			}
+		}
+		EFAnimInstance->SetIsInWater(true);
+		EFAnimInstance->SetIsGround(false);
+	}
+}
+
 void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -85,38 +124,45 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::MoveEnd);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Look);
 }
 
 void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
 {
-	float UpDownValue = Value.Get<float>();
-	// 현재 캐릭터 위치 가져오기
-	//FVector CurrentLocation = GetActorLocation();
-
-	// Up/Down 값을 Z축에 반영하여 새로운 위치 계산
-	// 여기서 UpDownValue가 양수면 위로, 음수면 아래로 이동합니다.
-	//FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, UpDownValue * UpDownSpeed * 0.5f);
-
-	// 올라갔다가 내려오는 거 속도 문제 해결 좀
-	// 다시 idle상태로 돌아오기 해야됨
-	if (UpDownValue < 0)
+	if (!bIsGround)
 	{
-		EFAnimInstance->SetIsUp(false);
-		EFAnimInstance->SetIsDown(true);
+		float UpDownValue = Value.Get<float>();
+
+		if (UpDownValue < 0)
+		{
+			EFAnimInstance->SetIsUp(false);
+			EFAnimInstance->SetIsDown(true);
+		}
+		else if (UpDownValue > 0)
+		{
+			EFAnimInstance->SetIsUp(true);
+			EFAnimInstance->SetIsDown(false);
+		}
+
+		FVector CurrentLocation = GetActorLocation();
+		
+		if (CurrentLocation.Z < -30.0f)
+		{
+			CurrentLocation.Z += UpDownValue * UpDownSpeed;
+			SetActorLocation(CurrentLocation);
+		}
+		else
+		{
+			float before = CurrentLocation.Z;
+			CurrentLocation.Z += UpDownValue * UpDownSpeed;
+			float after = CurrentLocation.Z;
+			if (before > after)
+			{
+				SetActorLocation(CurrentLocation);
+			}
+		}
 	}
-	else if (UpDownValue > 0)
-	{
-		EFAnimInstance->SetIsUp(true);
-		EFAnimInstance->SetIsDown(false);
-	}
-	//// 캐릭터의 위치 업데이트
-	//AddMovementInput(GetActorUpVector(), UpDownValue);
-	//SetActorLocation(NewLocation);
-	// 수직 이동 속도 조정 (예: 초당 100 유닛)
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation.Z += UpDownValue * UpDownSpeed;
-	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentLocation.Z);
-	SetActorLocation(CurrentLocation);
 }
 
 void AEFCharacterPlayer::UpDownEnd(const FInputActionValue& Value)
@@ -150,6 +196,14 @@ void AEFCharacterPlayer::MoveEnd(const FInputActionValue& Value)
 void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 {
 
+}
+
+void AEFCharacterPlayer::Look(const FInputActionValue& Value)
+{
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y);
 }
 
 

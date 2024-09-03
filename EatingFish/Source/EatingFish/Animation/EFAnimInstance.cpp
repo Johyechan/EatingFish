@@ -8,7 +8,6 @@
 UEFAnimInstance::UEFAnimInstance()
 {
 	MovingThreshould = 3.0f;
-	JumpingThreshould = 100.0f;
 }
 
 void UEFAnimInstance::NativeInitializeAnimation()
@@ -27,8 +26,8 @@ void UEFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (Movement)
 	{
 		Velocity = Movement->Velocity;
-		GroundSpeed = Velocity.Size2D(); // XY만 이용하면 지면의 속력을 구함
-		bIsIdle = GroundSpeed < MovingThreshould;
+		Speed = Velocity.Size2D();
+		bIsIdle = Speed < MovingThreshould;
 	}
 }
 
