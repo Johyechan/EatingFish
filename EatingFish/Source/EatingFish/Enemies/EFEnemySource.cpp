@@ -3,6 +3,7 @@
 
 #include "Enemies/EFEnemySource.h"
 #include "Enemies/Character/EFEnemyFishBase.h"
+#include "Enemies/Character/EFEnemyFishFire.h"
 
 // Sets default values for this component's properties
 UEFEnemySource::UEFEnemySource()
@@ -11,10 +12,10 @@ UEFEnemySource::UEFEnemySource()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	SpawnGap = 2.5f;
+	SpawnGap = 60.0f;
 	SpawnRange = 500.0f;
 
-	SpawnableEnemies.Add(AEFEnemyFishBase::StaticClass());
+	SpawnableEnemies.Add(AEFEnemyFishFire::StaticClass());
 	//################################юс╫ц############################
 }
 
@@ -24,7 +25,7 @@ void UEFEnemySource::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &UEFEnemySource::SpawnEnemy, SpawnGap, true);
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimer, this, &UEFEnemySource::SpawnEnemy, SpawnGap, false);
 	
 }
 

@@ -41,6 +41,13 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 		GetMesh()->SetAnimClass(AnimClassRef.Class);
 	}
 
+	Status.MaxLife = 100;
+	Status.AtkRange = 100;
+	Status.MoveSpeed = 500;
+	Status.Power = 10;
+
+	Status.Life = Status.MaxLife;
+
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -55,7 +62,7 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0, 500, 0);
-	GetCharacterMovement()->MaxSwimSpeed = 500;
+	GetCharacterMovement()->MaxSwimSpeed = Status.MoveSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20;
 	GetCharacterMovement()->BrakingDecelerationSwimming = 1000;
 	GetCharacterMovement()->GravityScale = 0;
@@ -68,8 +75,7 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	
 	
 
-	Life = MaxLife;
-	AtkRange = 200;
+	
 
 }
 
@@ -96,19 +102,19 @@ void AEFEnemyFishBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float AEFEnemyFishBase::GetAtkRange()
 {
-	return AtkRange;
+	return Status.AtkRange;
 }
 
 float AEFEnemyFishBase::GetLife()
 {
-	return Life;
+	return Status.Life;
 }
 
 void AEFEnemyFishBase::DecreaseHp(float Amt)
 {
-	Life -= Amt;
-	Life = FMath::Clamp(Life, 0, MaxLife);
-	if (Life <= 0) {
+	Status.Life -= Amt;
+	Status.Life = FMath::Clamp(Status.Life, 0, Status.MaxLife);
+	if (Status.Life <= 0) {
 		DoDie();
 	}
 }
@@ -148,13 +154,13 @@ void AEFEnemyFishBase::Bite()
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 	const FVector StartPos = GetActorLocation();
-	const FVector EndPos = StartPos + GetActorForwardVector() * 25;
+	const FVector EndPos = StartPos + GetActorForwardVector() * Status.AtkRange;
 
-	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera /*�����÷��̾�����ϴ�ä��*/, FCollisionShape::MakeSphere(25), Params);
+	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera /*�����÷��̾�����ϴ�ä��*/, FCollisionShape::MakeSphere(Status.AtkRange), Params);
 	if (IsHit) {
 		AEFCharacterPlayer* PC = Cast<AEFCharacterPlayer>(OutHitRes.GetActor());
 		if (PC) {
-			UGameplayStatics::ApplyDamage(PC, 10, GetController(), nullptr, nullptr);
+			UGameplayStatics::ApplyDamage(PC, Status.Power, GetController(), nullptr, nullptr);
 		}
 	}
 }
@@ -174,5 +180,49 @@ float AEFEnemyFishBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	DecreaseHp(DamageAmount);
 	return DamageAmount;
+}
+
+void AEFEnemyFishBase::UseSkill()
+{
+	//스킬 사용 할 수 있는걸 돌면서 찾을 것.
+	
+	//그리고 사용하기
+}
+
+uint8 AEFEnemyFishBase::ExamineSkillUse()
+{
+	//어떤 스킬이든 사용 가능한 지 검사할 것.
+
+	return 0;
+}
+
+FEFStat AEFEnemyFishBase::GetStat()
+{
+	return Status;
+}
+
+void AEFEnemyFishBase::SetStat(float Amount, EStatusType Type)
+{
+	switch (Type)
+	{
+	case EStatusType::MaxLife:
+		Status.MaxLife += Amount;
+		if (Amount >= 0)
+			Status.Life += Amount;
+		Status.Life = FMath::Clamp(Status.Life, 0, Status.MaxLife);
+		break;
+	case EStatusType::Power:
+		Status.Power += Amount;
+		break;
+	case EStatusType::AtkRange:
+		Status.AtkRange += Amount;
+		break;
+	case EStatusType::MoveSpeed:
+		Status.MoveSpeed += Amount;
+		GetCharacterMovement()->MaxSwimSpeed = Status.MoveSpeed;
+		break;
+	default:
+		break;
+	}
 }
 

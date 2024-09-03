@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enemies/Interface/EFSkillUsers.h"
 #include "GameFramework/Character.h"
+#include "Game/EFStat.h"
+#include "Character/EFStatusEntities.h"
 #include "EFEnemyFishBase.generated.h"
 
 UCLASS()
-class EATINGFISH_API AEFEnemyFishBase : public ACharacter
+class EATINGFISH_API AEFEnemyFishBase : public ACharacter, public IEFSkillUsers, public IEFStatusEntities
 {
 	GENERATED_BODY()
 
@@ -50,7 +53,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
 	TObjectPtr<class UAnimMontage> DieAnim;
 
-	float Life;
-	float MaxLife;
-	float AtkRange;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
+	TObjectPtr<class UAnimMontage> SkillAnim;
+
+	FEFStat Status;
+
+	void UseSkill() override; // Called by BTNode
+	uint8 ExamineSkillUse() override; // condition check in BT
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
+	TArray<TObjectPtr<class UEFSkillDataBase>> Skills;
+
+	// IEFStatusEntities을(를) 통해 상속됨
+	FEFStat GetStat() override;
+	void SetStat(float Amount, EStatusType Type) override;
 };
