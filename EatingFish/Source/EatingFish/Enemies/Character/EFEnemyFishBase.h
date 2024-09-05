@@ -59,7 +59,7 @@ protected:
 	FEFStat Status;
 
 	void UseSkill() override; // Called by BTNode
-	uint8 ExamineSkillUse() override; // condition check in BT
+	uint8 ExamineSkillUse(AActor* Target) override; // condition check in BT
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
 	TArray<TObjectPtr<class UEFSkillDataBase>> Skills;

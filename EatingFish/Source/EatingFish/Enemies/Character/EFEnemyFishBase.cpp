@@ -10,6 +10,7 @@
 #include "Enemies/Animation/EFEnemyAnimInst.h"
 #include "Character/EFCharacterPlayer.h"
 #include "Character/EFCharacterBase.h"
+#include "Skills/EFSkillDataBase.h"
 
 // Sets default values
 AEFEnemyFishBase::AEFEnemyFishBase()
@@ -58,6 +59,7 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 
 	GetCapsuleComponent()->InitCapsuleSize(25, 50);
 	GetCapsuleComponent()->SetRelativeRotation(FRotator(90, 0, 0));
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"));
 
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -156,7 +158,7 @@ void AEFEnemyFishBase::Bite()
 	const FVector StartPos = GetActorLocation();
 	const FVector EndPos = StartPos + GetActorForwardVector() * Status.AtkRange;
 
-	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera /*�����÷��̾�����ϴ�ä��*/, FCollisionShape::MakeSphere(Status.AtkRange), Params);
+	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera, FCollisionShape::MakeSphere(Status.AtkRange), Params);
 	if (IsHit) {
 		AEFCharacterPlayer* PC = Cast<AEFCharacterPlayer>(OutHitRes.GetActor());
 		if (PC) {
@@ -184,16 +186,27 @@ float AEFEnemyFishBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 void AEFEnemyFishBase::UseSkill()
 {
-	//스킬 사용 할 수 있는걸 돌면서 찾을 것.
-	
-	//그리고 사용하기
+	for (auto Skill : Skills)
+	{
+		if (Skill->GetSkillUseState()) {
+			Skill->Use(this);
+			return;
+		}
+	}
 }
 
-uint8 AEFEnemyFishBase::ExamineSkillUse()
+uint8 AEFEnemyFishBase::ExamineSkillUse(AActor* Target)
 {
-	//어떤 스킬이든 사용 가능한 지 검사할 것.
+	float Dist = (Target->GetActorLocation() - GetActorLocation()).Length();
+	for(auto Skill : Skills)
+	{
+		if (Dist <= Skill->Range) {
+			if (Skill->GetSkillUseState())
+				return true;
+		}
+	}
 
-	return 0;
+	return false;
 }
 
 FEFStat AEFEnemyFishBase::GetStat()
