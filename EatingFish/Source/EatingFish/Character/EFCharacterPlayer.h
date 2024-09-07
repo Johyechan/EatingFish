@@ -60,9 +60,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
 		float UpDownSpeed = 2.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		float AttackDistance = 200.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
+		float AttackSpeed = 10.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bool, Meta = (AllowPrivateAccess = "true"))
 		bool bIsGround;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
 		bool bIsOnce;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
+		bool bIsAttack;
+
+	void AttackEnd();
 };

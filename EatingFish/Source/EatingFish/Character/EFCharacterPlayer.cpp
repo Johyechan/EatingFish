@@ -124,7 +124,6 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::MoveEnd);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Look);
 }
 
@@ -195,7 +194,20 @@ void AEFCharacterPlayer::MoveEnd(const FInputActionValue& Value)
 
 void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 {
+	bIsAttack = true;
+	EFAnimInstance->SetIsAttack(true);
 
+	FVector ForwardDirection = GetActorForwardVector();
+
+	FVector AttackVelocity = ForwardDirection * AttackDistance;
+
+	LaunchCharacter(AttackVelocity, true, true);
+}
+
+void AEFCharacterPlayer::AttackEnd()
+{
+	bIsAttack = false;
+	EFAnimInstance->SetIsAttack(false);
 }
 
 void AEFCharacterPlayer::Look(const FInputActionValue& Value)
