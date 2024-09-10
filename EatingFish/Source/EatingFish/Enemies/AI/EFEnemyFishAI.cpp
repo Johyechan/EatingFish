@@ -24,7 +24,8 @@ void AEFEnemyFishAI::RunAI()
 {
 	UBlackboardComponent* BBPtr = Blackboard.Get();
 	if (UseBlackboard(BBoard, BBPtr)) {
-		AEFCharacterPlayer* Ctrl = Cast<AEFCharacterPlayer>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		AEFCharacterBase* Ctrl = Cast<AEFCharacterBase>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+		UE_LOG(LogTemp, Warning, TEXT("SETTTING TARGETSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs"));
 		if (Ctrl) {
 			Blackboard->SetValueAsObject(TEXT("Target"), Ctrl);
 			UE_LOG(LogTemp, Warning, TEXT("TARGETSETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"));

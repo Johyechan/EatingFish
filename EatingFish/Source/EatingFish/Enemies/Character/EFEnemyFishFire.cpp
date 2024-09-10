@@ -26,7 +26,7 @@ AEFEnemyFishFire::AEFEnemyFishFire()
 		SkillAnim = SkillAnimRef.Object;
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClassRef(TEXT("/Game/EF/Animations/EFPiranhaAnim.EFPiranhaAnim_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClassRef(TEXT("/Game/EF/Animations/EFFireFishAnim.EFFireFishAnim_C"));
 	if (AnimClassRef.Class) {
 		GetMesh()->SetAnimClass(AnimClassRef.Class);
 	}
@@ -35,4 +35,9 @@ AEFEnemyFishFire::AEFEnemyFishFire()
 	if (FlameThrowRef.Object) {
 		Skills.Add(FlameThrowRef.Object);
 	}
+	static ConstructorHelpers::FObjectFinder<UEFSkillDataBase> PowerUpRef(TEXT("/Game/EF/Datas/EFFlameThrow.EFFlameThrow"));
+	if (PowerUpRef.Object) {
+		Skills.Add(PowerUpRef.Object);
+	}
+	
 }
