@@ -26,6 +26,7 @@ public:
 	FORCEINLINE void SetIsDown(bool b) { bIsDown = b; }
 	FORCEINLINE void SetIsInWater(bool b) { bIsInWater = b; }
 	FORCEINLINE void SetIsGround(bool b) { IsGround = b; }
+	FORCEINLINE void SetIsAttack(bool b) { bIsAttack = b; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
@@ -54,6 +55,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		bool bIsUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool bIsAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		float MovingThreshould;
