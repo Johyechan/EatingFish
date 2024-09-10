@@ -27,4 +27,7 @@ public:
 	FPrimaryAssetId GetPrimaryAssetId() const override {
 		return FPrimaryAssetId("EFSkillDataBase", GetFName());
 	}
+
+protected:
+	FTimerHandle CooldownHandle;
 };

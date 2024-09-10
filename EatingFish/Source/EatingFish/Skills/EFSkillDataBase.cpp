@@ -5,9 +5,10 @@
 
 void UEFSkillDataBase::Use(IEFStatusEntities* User)
 {
+	GetWorld()->GetTimerManager().SetTimer(CooldownHandle, Cooldown, false);
 }
 
 uint8 UEFSkillDataBase::GetSkillUseState()
 {
-	return 0;
+	return CooldownHandle.IsValid() && !GetWorld()->GetTimerManager().IsTimerActive(CooldownHandle);
 }

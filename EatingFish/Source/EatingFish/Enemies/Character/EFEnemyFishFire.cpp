@@ -2,6 +2,7 @@
 
 
 #include "Enemies/Character/EFEnemyFishFire.h"
+#include "Skills/EFSkillDataBase.h"
 
 AEFEnemyFishFire::AEFEnemyFishFire()
 {
@@ -28,5 +29,10 @@ AEFEnemyFishFire::AEFEnemyFishFire()
 	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimClassRef(TEXT("/Game/EF/Animations/EFPiranhaAnim.EFPiranhaAnim_C"));
 	if (AnimClassRef.Class) {
 		GetMesh()->SetAnimClass(AnimClassRef.Class);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UEFSkillDataBase> FlameThrowRef(TEXT("/Game/EF/Datas/EFFlameThrow.EFFlameThrow"));
+	if (FlameThrowRef.Object) {
+		Skills.Add(FlameThrowRef.Object);
 	}
 }

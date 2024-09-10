@@ -23,5 +23,5 @@ class EATINGFISH_API IEFSkillUsers
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void UseSkill() = 0;
-	virtual uint8 ExamineSkillUse() = 0;
+	virtual uint8 ExamineSkillUse(AActor* Target) = 0;
 };
