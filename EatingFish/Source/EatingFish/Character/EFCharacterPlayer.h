@@ -33,6 +33,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<class UCameraComponent> FollowCamera;
 
+	TObjectPtr<class UEFEnemySource> FollowEnemySource;
+
 // Input Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
@@ -51,6 +53,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void MoveEnd(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void AttackStop(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
 protected:

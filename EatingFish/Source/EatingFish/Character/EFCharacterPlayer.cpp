@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include <Enemies/EFEnemySource.h>
 
 AEFCharacterPlayer::AEFCharacterPlayer()
 {
@@ -23,6 +24,8 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetRelativeRotation(FRotator(-20.0f, 0.0f, 0.0f));
+
+	FollowEnemySource = CreateDefaultSubobject<UEFEnemySource>(TEXT("FollowEnemySource"));
 
 	GetCharacterMovement()->GravityScale = 1.0f;
 
@@ -124,6 +127,7 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::MoveEnd);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::AttackStop);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Look);
 }
 
@@ -202,6 +206,11 @@ void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 	FVector AttackVelocity = ForwardDirection * AttackDistance;
 
 	LaunchCharacter(AttackVelocity, true, true);
+}
+
+void AEFCharacterPlayer::AttackStop(const FInputActionValue& Value)
+{
+	AttackEnd();
 }
 
 void AEFCharacterPlayer::AttackEnd()

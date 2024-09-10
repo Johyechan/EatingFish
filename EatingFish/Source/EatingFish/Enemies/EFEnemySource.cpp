@@ -12,7 +12,7 @@ UEFEnemySource::UEFEnemySource()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	SpawnGap = 60.0f;
+	SpawnGap = 1.0f;
 	SpawnRange = 500.0f;
 
 	SpawnableEnemies.Add(AEFEnemyFishFire::StaticClass());
