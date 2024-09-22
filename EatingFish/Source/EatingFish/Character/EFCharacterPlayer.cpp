@@ -28,6 +28,10 @@ AEFCharacterPlayer::AEFCharacterPlayer()
 	FollowEnemySource = CreateDefaultSubobject<UEFEnemySource>(TEXT("FollowEnemySource"));
 
 	GetCharacterMovement()->GravityScale = 1.0f;
+	UpDownSpeed = 2.0f;
+	AttackSpeed = 1000.0f;
+	AttackTime = 0.5f;
+	bIsAttack = false;
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>InputMappingContextRef(TEXT("/Game/EF/Inputs/EFInputMap.EFInputMap"));
 	if (nullptr != InputMappingContextRef.Object)
@@ -127,13 +131,12 @@ void AEFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Move);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::MoveEnd);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Attack);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AEFCharacterPlayer::AttackStop);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEFCharacterPlayer::Look);
 }
 
 void AEFCharacterPlayer::UpDown(const FInputActionValue& Value)
 {
-	if (!bIsGround)
+	if (!bIsGround && !bIsAttack)
 	{
 		float UpDownValue = Value.Get<float>();
 
@@ -179,15 +182,18 @@ void AEFCharacterPlayer::UpDownEnd(const FInputActionValue& Value)
 
 void AEFCharacterPlayer::Move(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	if (!bIsAttack)
+	{
+		FVector2D MovementVector = Value.Get<FVector2D>();
 
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	AddMovementInput(ForwardDirection, MovementVector.X);
-	AddMovementInput(RightDirection, MovementVector.Y);
+		AddMovementInput(ForwardDirection, MovementVector.X);
+		AddMovementInput(RightDirection, MovementVector.Y);
+	}
 }
 
 void AEFCharacterPlayer::MoveEnd(const FInputActionValue& Value)
@@ -198,25 +204,31 @@ void AEFCharacterPlayer::MoveEnd(const FInputActionValue& Value)
 
 void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 {
-	bIsAttack = true;
-	EFAnimInstance->SetIsAttack(true);
+	if (!bIsAttack && !bIsGround)
+	{
+		bIsAttack = true;
+		EFAnimInstance->SetIsAttack(bIsAttack);
 
-	FVector ForwardDirection = GetActorForwardVector();
+		FVector ForwardDirection = GetActorForwardVector();
 
-	FVector AttackVelocity = ForwardDirection * AttackDistance;
+		FVector AttackVelocity = ForwardDirection * AttackSpeed;
 
-	LaunchCharacter(AttackVelocity, true, true);
-}
+		LaunchCharacter(AttackVelocity, true, true);
 
-void AEFCharacterPlayer::AttackStop(const FInputActionValue& Value)
-{
-	AttackEnd();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), EFAnimInstance->GetIsAttack() == true ? TEXT("IsTrue") : TEXT("IsNotTrue"));
+		GetWorld()->GetTimerManager().SetTimer(AttackTimeHandler, this, &AEFCharacterPlayer::AttackEnd, AttackTime, false);
+	}
 }
 
 void AEFCharacterPlayer::AttackEnd()
 {
+	// 이새끼 왜 끝나고 안돌아감?
 	bIsAttack = false;
-	EFAnimInstance->SetIsAttack(false);
+	EFAnimInstance->SetIsAttack(bIsAttack);
+
+	GetCharacterMovement()->Velocity = FVector(0.0f, 0.0f, 0.0f);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), EFAnimInstance->GetIsAttack() == false ? TEXT("IsFalse") : TEXT("IsNotFalse"));
 }
 
 void AEFCharacterPlayer::Look(const FInputActionValue& Value)
