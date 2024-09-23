@@ -27,6 +27,7 @@ public:
 	FORCEINLINE void SetIsInWater(bool b) { bIsInWater = b; }
 	FORCEINLINE void SetIsGround(bool b) { IsGround = b; }
 	FORCEINLINE void SetIsAttack(bool b) { bIsAttack = b; }
+	FORCEINLINE bool GetIsAttack() { return bIsAttack; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)

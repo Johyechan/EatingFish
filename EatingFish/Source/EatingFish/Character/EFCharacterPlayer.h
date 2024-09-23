@@ -53,7 +53,6 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void MoveEnd(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
-	void AttackStop(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
 protected:
@@ -61,13 +60,7 @@ protected:
 		UEFAnimInstance* EFAnimInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float UpDownSpeed = 2.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float AttackDistance = 200.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Speed, Meta = (AllowPrivateAccess = "true"))
-		float AttackSpeed = 10.0f;
+		float UpDownSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bool, Meta = (AllowPrivateAccess = "true"))
 		bool bIsGround;
@@ -75,8 +68,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
 		bool bIsOnce;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Bool, Meta = (AllowPrivateAccess = "true"))
-		bool bIsAttack;
-
 	void AttackEnd();
+
+protected:
+	FTimerHandle AttackTimeHandler;
+
+	float AttackTime;
+
+	float AttackSpeed;
+
+	bool bIsAttack;
 };
