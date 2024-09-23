@@ -24,9 +24,9 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 
 private:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = MyBTs)
 	TObjectPtr<class UBlackboardData> BBoard;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = MyBTs)
 	TObjectPtr<class UBehaviorTree> Tree;
 };

@@ -36,8 +36,14 @@ void UEFEnemySource::SpawnEnemy()
 
 	RandLoc.X *= FMath::RandRange(-SpawnRange, SpawnRange);
 	RandLoc.Y *= FMath::RandRange(-SpawnRange, SpawnRange);
-	const FTransform SpTrm(FQuat::Identity, SpLoc + RandLoc);
+	RandLoc.Z *= FMath::RandRange(-SpawnRange, SpawnRange);
+	FTransform SpTrm(FQuat::Identity, SpLoc + RandLoc);
 
+	FHitResult Hit;
+	bool IsHit = GetWorld()->SweepSingleByChannel(Hit, SpLoc, SpLoc + RandLoc, FQuat::Identity, ECC_GameTraceChannel2, FCollisionShape::MakeSphere(1.0f));
+	if (IsHit) {
+		SpTrm = FTransform(Hit.Location + FVector::UpVector * 100);
+	}
 	int32 EnemyTypeIdx = FMath::RandRange(0, SpawnableEnemies.Num() - 1);
 	TSubclassOf<AEFEnemyFishBase> Selected = SpawnableEnemies[EnemyTypeIdx];
 

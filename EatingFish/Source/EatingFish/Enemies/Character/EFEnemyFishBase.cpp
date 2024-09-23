@@ -77,7 +77,7 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 	
 	
 
-	
+	bIsAttacking = false;
 
 }
 
@@ -131,10 +131,10 @@ void AEFEnemyFishBase::DoDie()
 	}
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
 
-	AEFEnemyFishAI* FishAI = Cast<AEFEnemyFishAI>(GetController());
+	/*AEFEnemyFishAI* FishAI = Cast<AEFEnemyFishAI>(GetController());
 	if (FishAI) {
 		FishAI->StopAI();
-	}
+	}*/
 
 	FTimerHandle Dier;
 	GetWorld()->GetTimerManager().SetTimer(Dier, FTimerDelegate::CreateLambda([&]() {Destroy(); }), 5.0f, false);
@@ -142,12 +142,16 @@ void AEFEnemyFishBase::DoDie()
 
 void AEFEnemyFishBase::DoAttack()
 {
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	GetMesh()->GetAnimInstance()->Montage_Play(AttackAnim);
-
-	FOnMontageEnded OnEnd;
-	OnEnd.BindUObject(this, &AEFEnemyFishBase::EndAnim);
-	GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(OnEnd, AttackAnim);
+	if (!bIsAttacking) {
+		bIsAttacking = true;
+			
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+			GetMesh()->GetAnimInstance()->Montage_Play(AttackAnim);
+		
+		FOnMontageEnded OnEnd;
+		OnEnd.BindUObject(this, &AEFEnemyFishBase::EndAnim);
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(OnEnd, AttackAnim);
+	}
 }
 
 void AEFEnemyFishBase::Bite()
@@ -155,16 +159,24 @@ void AEFEnemyFishBase::Bite()
 	FHitResult OutHitRes;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
-	const FVector StartPos = GetActorLocation();
-	const FVector EndPos = StartPos + GetActorForwardVector() * Status.AtkRange;
+	const FVector StartPos = GetActorLocation() - GetActorUpVector() * GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FVector EndPos = StartPos - GetActorUpVector() * Status.AtkRange;
 
-	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_Camera, FCollisionShape::MakeSphere(Status.AtkRange), Params);
+	bool IsHit = GetWorld()->SweepSingleByChannel(OutHitRes, StartPos, EndPos, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Status.AtkRange), Params);
 	if (IsHit) {
 		AEFCharacterPlayer* PC = Cast<AEFCharacterPlayer>(OutHitRes.GetActor());
 		if (PC) {
+			UE_LOG(LogTemp, Warning, TEXT("PLAYER ATTACKE!!!!!!!!!!!!!!"));
 			UGameplayStatics::ApplyDamage(PC, Status.Power, GetController(), nullptr, nullptr);
 		}
 	}
+
+#if ENABLE_DRAW_DEBUG
+	FVector Origin = StartPos + (EndPos - StartPos) * 0.5f;
+	float HalfHeight = Status.AtkRange * 0.5f;
+	FColor Color = IsHit ? FColor::Green : FColor::Red;
+	DrawDebugCapsule(GetWorld(), Origin, HalfHeight, Status.AtkRange, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), Color, false, 5);
+#endif // ENABLE_DRAW_DEBUG
 }
 
 void AEFEnemyFishBase::DeleteSelf()
@@ -175,6 +187,7 @@ void AEFEnemyFishBase::DeleteSelf()
 void AEFEnemyFishBase::EndAnim(UAnimMontage* Montage, bool IsPropEnded)
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
+	bIsAttacking = false;
 }
 
 float AEFEnemyFishBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

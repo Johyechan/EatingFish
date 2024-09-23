@@ -35,9 +35,10 @@ AEFEnemyFishFire::AEFEnemyFishFire()
 	if (FlameThrowRef.Object) {
 		Skills.Add(FlameThrowRef.Object);
 	}
-	static ConstructorHelpers::FObjectFinder<UEFSkillDataBase> PowerUpRef(TEXT("/Game/EF/Datas/EFFlameThrow.EFFlameThrow"));
+	static ConstructorHelpers::FObjectFinder<UEFSkillDataBase> PowerUpRef(TEXT("/Game/EF/Datas/EFPowerUp.EFPowerUp"));
 	if (PowerUpRef.Object) {
 		Skills.Add(PowerUpRef.Object);
 	}
 	
+	Status.AtkRange = 125;
 }

@@ -44,7 +44,9 @@ public:
 	void EndAnim(UAnimMontage* Montage, bool IsPropEnded);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
+	// IEFStatusEntities을(를) 통해 상속됨
+	FEFStat GetStat() override;
+	void SetStat(float Amount, EStatusType Type) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
@@ -64,7 +66,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
 	TArray<TObjectPtr<class UEFSkillDataBase>> Skills;
 
-	// IEFStatusEntities을(를) 통해 상속됨
-	FEFStat GetStat() override;
-	void SetStat(float Amount, EStatusType Type) override;
+
+	uint8 bIsAttacking;
+	
 };
