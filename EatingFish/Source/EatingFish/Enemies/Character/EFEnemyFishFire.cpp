@@ -40,5 +40,6 @@ AEFEnemyFishFire::AEFEnemyFishFire()
 		Skills.Add(PowerUpRef.Object);
 	}
 	
+	Status.MaxLife = 500;
 	Status.AtkRange = 125;
 }

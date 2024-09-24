@@ -42,6 +42,11 @@ AEFEnemyFishBase::AEFEnemyFishBase()
 		GetMesh()->SetAnimClass(AnimClassRef.Class);
 	}
 
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> OverMatRef(TEXT("/Game/CharacterOverlay/Materials/Material_Instance/MI_Fire.MI_Fire"));
+	if (OverMatRef.Object) {
+		AtkMat = OverMatRef.Object;
+	}
+
 	Status.MaxLife = 100;
 	Status.AtkRange = 100;
 	Status.MoveSpeed = 500;
@@ -116,6 +121,19 @@ void AEFEnemyFishBase::DecreaseHp(float Amt)
 {
 	Status.Life -= Amt;
 	Status.Life = FMath::Clamp(Status.Life, 0, Status.MaxLife);
+
+	UAnimInstance* AnimIns = GetMesh()->GetAnimInstance();
+	if (AnimIns) {
+		AnimIns->StopAllMontages(0);
+		AnimIns->Montage_Play(SkillAnim);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+
+		FOnMontageEnded OnEnd;
+		OnEnd.BindUObject(this, &AEFEnemyFishBase::EndAnim);
+		GetMesh()->GetAnimInstance()->Montage_SetEndDelegate(OnEnd, SkillAnim);
+	}
+
 	if (Status.Life <= 0) {
 		DoDie();
 	}
@@ -137,16 +155,16 @@ void AEFEnemyFishBase::DoDie()
 	}*/
 
 	FTimerHandle Dier;
-	GetWorld()->GetTimerManager().SetTimer(Dier, FTimerDelegate::CreateLambda([&]() {Destroy(); }), 5.0f, false);
+	GetWorld()->GetTimerManager().SetTimer(Dier, FTimerDelegate::CreateLambda([&]() {Destroy(); }), 15.0f, false);
 }
 
 void AEFEnemyFishBase::DoAttack()
 {
 	if (!bIsAttacking) {
 		bIsAttacking = true;
-			
+		GetMesh()->SetOverlayMaterial(AtkMat);
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-			GetMesh()->GetAnimInstance()->Montage_Play(AttackAnim);
+		GetMesh()->GetAnimInstance()->Montage_Play(AttackAnim);
 		
 		FOnMontageEnded OnEnd;
 		OnEnd.BindUObject(this, &AEFEnemyFishBase::EndAnim);
@@ -188,6 +206,7 @@ void AEFEnemyFishBase::EndAnim(UAnimMontage* Montage, bool IsPropEnded)
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Swimming);
 	bIsAttacking = false;
+	GetMesh()->SetOverlayMaterial(nullptr);
 }
 
 float AEFEnemyFishBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

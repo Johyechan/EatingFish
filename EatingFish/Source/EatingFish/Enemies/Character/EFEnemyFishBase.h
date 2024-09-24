@@ -67,6 +67,9 @@ protected:
 	TArray<TObjectPtr<class UEFSkillDataBase>> Skills;
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Skill)
+	TObjectPtr<UMaterialInstance> AtkMat;
+
 	uint8 bIsAttacking;
 	
 };

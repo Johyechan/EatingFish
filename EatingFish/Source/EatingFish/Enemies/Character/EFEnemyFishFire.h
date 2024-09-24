@@ -20,5 +20,4 @@ public:
 	//virtual void Bite() override; //?
 
 protected:
-	//??
 };
