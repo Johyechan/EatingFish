@@ -229,7 +229,6 @@ void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 
 void AEFCharacterPlayer::AttackEnd()
 {
-	// 이새끼 왜 끝나고 안돌아감?
 	bIsAttack = false;
 	EFAnimInstance->SetIsAttack(bIsAttack);
 
