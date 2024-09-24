@@ -28,6 +28,7 @@ public:
 	FORCEINLINE void SetIsGround(bool b) { IsGround = b; }
 	FORCEINLINE void SetIsAttack(bool b) { bIsAttack = b; }
 	FORCEINLINE bool GetIsAttack() { return bIsAttack; }
+	FORCEINLINE void SetIsDie(bool b) { bIsDie = b; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		bool bIsAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		bool bIsDie;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 		float MovingThreshould;

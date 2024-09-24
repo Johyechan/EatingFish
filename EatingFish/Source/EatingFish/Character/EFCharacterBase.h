@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/EFAnimationAttackInterface.h"
+#include <EatingFish/Animation/EFAnimInstance.h>
 #include "EFCharacterBase.generated.h"
 
 UCLASS()
@@ -17,8 +18,15 @@ public:
 	AEFCharacterBase();
 
 protected:
-
-	// Attack을 멈추게 해야해
-
 	virtual void AttackHitCheck() override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+protected:
+	void HpDecrease(float Damage);
+	bool die;
+
+	float curHp;
+	float maxHp;
+
+	UEFAnimInstance* EFAnimInstance;
 };

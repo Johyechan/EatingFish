@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Physics/EFCollision.h"
+#include <Enemies/Character/EFEnemyFishBase.h>
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 AEFCharacterBase::AEFCharacterBase()
@@ -46,24 +48,34 @@ AEFCharacterBase::AEFCharacterBase()
     {
         GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
     }
+
+    maxHp = 100.0f;
+    curHp = maxHp;
+    die = false;
 }
 
 void AEFCharacterBase::AttackHitCheck()
 {
-    // ÀÌ»õ³¢ ¿Ö ¹°ÀÌ¶û ´êÀ½?
     FHitResult OutHitResult; 
     FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
-    const float AttackRange = 40.0f; 
-    const float AttackRadius = 50.0f; 
+
+    const float AttackRange = 100.0f; 
+    const float AttackRadius = 100.0f; 
     const float AttackDamage = 30.0f; 
+
     const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius(); 
     const FVector End = Start + GetActorForwardVector() * AttackRange;
-    bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity,
-        CCHANNEL_EFACTION, FCollisionShape::MakeSphere(AttackRadius), Params);
+
+    bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(AttackRadius), Params);
 
     if (HitDetected) 
     {
-
+        AEFEnemyFishBase* FB = Cast<AEFEnemyFishBase>(OutHitResult.GetActor());
+        if (FB)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("%s"), TEXT("Attack!!"));
+            UGameplayStatics::ApplyDamage(FB, AttackDamage, GetController(), nullptr, nullptr);
+        }
     }
 
 #if ENABLE_DRAW_DEBUG
@@ -73,5 +85,22 @@ void AEFCharacterBase::AttackHitCheck()
     DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius,
         FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 #endif
+}
+
+float AEFCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+    Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+    HpDecrease(DamageAmount);
+    return DamageAmount;
+}
+
+void AEFCharacterBase::HpDecrease(float Damage)
+{
+    curHp -= Damage;
+    curHp = FMath::Clamp(curHp, 0, maxHp);
+    if (curHp <= 0)
+    {
+        die = true;
+    }
 }
 

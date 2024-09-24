@@ -96,28 +96,36 @@ void AEFCharacterPlayer::BeginPlay()
 
 void AEFCharacterPlayer::Tick(float DeltaTime)
 {
-	if (bIsGround)
+	if (die)
 	{
-		bIsOnce = true;
-		GetCharacterMovement()->GravityScale = 1.0f;
-		EFAnimInstance->SetIsInWater(false);
-		EFAnimInstance->SetIsGround(true);
+		EFAnimInstance->SetIsDie(true);
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
 	}
 	else
 	{
-		if (bIsOnce)
+		if (bIsGround)
 		{
-			FVector CurrentLocation = GetActorLocation();
-			if (CurrentLocation.Z < -100.0f)
-			{
-				GetCharacterMovement()->GravityScale = 0.0f;
-				CurrentLocation.Z += 50.0f;
-				SetActorLocation(CurrentLocation);
-				bIsOnce = false;
-			}
+			bIsOnce = true;
+			GetCharacterMovement()->GravityScale = 1.0f;
+			EFAnimInstance->SetIsInWater(false);
+			EFAnimInstance->SetIsGround(true);
 		}
-		EFAnimInstance->SetIsInWater(true);
-		EFAnimInstance->SetIsGround(false);
+		else
+		{
+			if (bIsOnce)
+			{
+				FVector CurrentLocation = GetActorLocation();
+				if (CurrentLocation.Z < -100.0f)
+				{
+					GetCharacterMovement()->GravityScale = 0.0f;
+					CurrentLocation.Z += 50.0f;
+					SetActorLocation(CurrentLocation);
+					bIsOnce = false;
+				}
+			}
+			EFAnimInstance->SetIsInWater(true);
+			EFAnimInstance->SetIsGround(false);
+		}
 	}
 }
 
@@ -215,7 +223,6 @@ void AEFCharacterPlayer::Attack(const FInputActionValue& Value)
 
 		LaunchCharacter(AttackVelocity, true, true);
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), EFAnimInstance->GetIsAttack() == true ? TEXT("IsTrue") : TEXT("IsNotTrue"));
 		GetWorld()->GetTimerManager().SetTimer(AttackTimeHandler, this, &AEFCharacterPlayer::AttackEnd, AttackTime, false);
 	}
 }
@@ -227,8 +234,6 @@ void AEFCharacterPlayer::AttackEnd()
 	EFAnimInstance->SetIsAttack(bIsAttack);
 
 	GetCharacterMovement()->Velocity = FVector(0.0f, 0.0f, 0.0f);
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), EFAnimInstance->GetIsAttack() == false ? TEXT("IsFalse") : TEXT("IsNotFalse"));
 }
 
 void AEFCharacterPlayer::Look(const FInputActionValue& Value)
